@@ -36,8 +36,9 @@ class MainSimulation{
 
         });
         
-        this.decayBtn = new DraggableSidewaysButton(this, 'Decay', (val) => {
-            this.decay = val - this.attack;
+        this.decaySustainBtn = new DraggableSidewaysAndVerticalButton(this, 'Decay', 'Sustain', (xVal, yVal) => {
+            this.decay = xVal - this.attack;
+            this.sustain = yVal;
 
         });
         this.releaseBtn = new DraggableSidewaysButton(this, 'Release', (val) => {
@@ -53,7 +54,7 @@ class MainSimulation{
         window.addEventListener("touchend", this.onmouseup.bind(this),{'passive':false});
         window.addEventListener("touchcancel", this.onmouseup.bind(this),{'passive':false});
 
-        this.objects = [new ASDRGraphDrawer(this),  this.attackBtn, this.decayBtn, this.releaseBtn];
+        this.objects = [new ASDRGraphDrawer(this),  this.attackBtn, this.decaySustainBtn, this.releaseBtn];
 
         this.synth = new Synth(this.audioContext);
 
@@ -142,7 +143,7 @@ class MainSimulation{
 
         return [x / this.maxWidth * (width-xPadding*2)+xPadding, (maxHeight-y) / maxHeight * (height-yPadding*2)+yPadding];
     }
-    toInternalX(canvasX){
+    toInternalCoords(canvasX, canvasY){
         let width = this.canvas.width;
         let height = this.canvas.height;
 
@@ -151,12 +152,12 @@ class MainSimulation{
         let xPadding = 100;
         let yPadding = 100;
 
-        return (canvasX -xPadding) /(width-xPadding*2) * this.maxWidth;
+        return [(canvasX -xPadding) /(width-xPadding*2) * this.maxWidth, maxHeight-((canvasY -yPadding) /(height-yPadding*2) * maxHeight)];
     }
 
     recalcStartPositions(){
         this.attackBtn.leftLimit = 0;
-        this.decayBtn.leftLimit = this.attack;
+        this.decaySustainBtn.leftLimit = this.attack;
         this.releaseBtn.leftLimit = this.attack + this.decay + this.noteHoldAreaWidth;
     }
 
@@ -164,10 +165,10 @@ class MainSimulation{
         this.attackBtn.x = this.attack;
         this.attackBtn.y = 1;
 
-        this.decayBtn.x = this.attack + this.decay;
-        this.decayBtn.y = this.sustain;
+        this.decaySustainBtn.x = this.attack + this.decay;
+        this.decaySustainBtn.y = this.sustain;
 
-        //this.sustainBtn.x = this.decayBtn.x;
+        //this.sustainBtn.x = this.decaySustainBtn.x;
         //this.sustainBtn.y = this.sustain;
 
         this.releaseBtn.x = this.attack + this.decay + this.noteHoldAreaWidth + this.release;
