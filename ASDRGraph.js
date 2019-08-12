@@ -33,8 +33,9 @@ class ASDRGraphDrawer{
 }
 
 class DraggableSidewaysButton{
-    constructor(parent, ondragCallback){
+    constructor(parent, title, ondragCallback){
         this.parent = parent;
+        this.title = title;
         this.ondragCallback = ondragCallback;
 
         this.x = 1;
@@ -98,6 +99,13 @@ class DraggableSidewaysButton{
         this.parent.moveTo(this.x, lineY + labelOffset + barHeight/2);
         this.parent.lineTo(this.x, lineY + labelOffset - barHeight/2);
         context.stroke();
+
+        //label
+        
+        context.fillStyle = "darkblue";
+        context.font = "20" + "pt bold calibri";
+        let midpointX = (this.leftLimit + this.x)/2;
+        drawCenteredText(context, this.title, ...this.parent.toCanvasCoords(midpointX, lineY - barHeight*2));
 
         //dashed line up to the dot
         context.strokeStyle = "hsla(240,50%,30%,0.7)";

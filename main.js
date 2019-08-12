@@ -8,8 +8,8 @@ class MainSimulation{
         this.release = 1.2;
 
 
-        this.noteHoldAreaWidth = 1;
-        this.maxWidth = 3; //define the coordinate system
+        this.noteHoldAreaWidth = 0.5;
+        this.maxWidth = 2; //define the coordinate system
         this.maxHeight = 1;
 
 
@@ -20,7 +20,7 @@ class MainSimulation{
         this.noteStartTime = 0;
     }
 
-    start(){
+    start(){    
 
         this.canvas = document.getElementById("canvas");
         this.context = canvas.getContext('2d');
@@ -31,16 +31,16 @@ class MainSimulation{
         this.centerPos = [this.width/2, this.height/2];
 
 
-        this.attackBtn = new DraggableSidewaysButton(this, (val) => {
+        this.attackBtn = new DraggableSidewaysButton(this, 'Attack', (val) => {
             this.attack = val;
 
         });
         
-        this.decayBtn = new DraggableSidewaysButton(this, (val) => {
+        this.decayBtn = new DraggableSidewaysButton(this, 'Decay', (val) => {
             this.decay = val - this.attack;
 
         });
-        this.releaseBtn = new DraggableSidewaysButton(this, (val) => {
+        this.releaseBtn = new DraggableSidewaysButton(this, 'Release', (val) => {
             this.release = val - this.attack - this.decay - this.noteHoldAreaWidth;
         });
 
@@ -221,7 +221,9 @@ class MainSimulation{
             }
             if(this.playState == "release"){
                 x += this.attack + this.decay + this.noteHoldAreaWidth;
+                
             }
+            //if(x > this.decay)this.playState = "none";
             
             context.strokeStyle = "red";
             context.lineWidth = 3;
