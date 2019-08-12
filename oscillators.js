@@ -1,6 +1,6 @@
 class Synth {
 
-  constructor(context, maxNoteLength=5) {
+  constructor(context, maxNoteLength=20) {
     this.context = context;
     this.maxNoteLength = maxNoteLength;
     this.initialized = false;
@@ -11,6 +11,8 @@ class Synth {
     this.release = 1.2;
 
     this.notePlaying = false;
+
+    this.lastGain = 0;
   }
 
   init() {
@@ -43,7 +45,7 @@ class Synth {
     this.gainNode.gain.exponentialRampToValueAtTime(this.sustain, time+this.attack+this.delay);
             
     this.oscillator.start(time);
-    this.stopAtTime(time+this.maxNoteLength );
+    this.gainNode.gain.setValueAtTime(0.001, time+this.maxNoteLength);
   }
 
   setFreq(freq){
@@ -58,6 +60,7 @@ class Synth {
     this.stopAtTime(this.currentTime() + this.release);
   }
   stopAtTime(time){
+    this.gainNode.gain.setValueAtTime(this.sustain, this.currentTime());
     this.gainNode.gain.exponentialRampToValueAtTime(0.001, time);
     this.oscillator.stop(time);
     

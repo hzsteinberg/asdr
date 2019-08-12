@@ -14,7 +14,10 @@ class MainSimulation{
 
 
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        this.synth = null;new Synth(this.audioContext);
+        this.synth = null;
+
+        this.playState = "none";
+        this.noteStartTime = 0;
     }
 
     start(){
@@ -180,10 +183,15 @@ class MainSimulation{
         this.synth.delay = this.decay;
         this.synth.release = this.release;
         this.synth.play(440);
+
+        this.noteStartTime = this.synth.currentTime();
+        this.playState = "attack";
     }
 
     defaultOnMouseUp(){
         this.synth.stop();
+        this.noteStartTime = this.synth.currentTime();
+        this.playState = "release";
     }
 
     update(){
@@ -194,6 +202,7 @@ class MainSimulation{
 
         this.recalcButtonPositions();
 
+
         //draw
         this.updateCanvasSize();
        // context.fillRect(0,0,this.width,this.height);
@@ -201,6 +210,27 @@ class MainSimulation{
         for(var i=0;i<this.objects.length;i++){
             this.objects[i].draw(context);
         }
+
+
+        //if playing, draw the volume
+        if(this.playState != "none"){
+            
+            let x = this.synth.currentTime() - this.noteStartTime;
+            if(this.playState == "attack" && x > this.attack + this.decay + this.noteHoldAreaWidth){
+                x = this.attack + this.decay+ this.noteHoldAreaWidth;
+            }
+            if(this.playState == "release"){
+                x += this.attack + this.decay + this.noteHoldAreaWidth;
+            }
+            
+            context.strokeStyle = "red";
+            context.lineWidth = 3;
+            context.beginPath();
+            this.moveTo(x, 0);
+            this.lineTo(x, 1);
+            context.stroke();
+        }
+
         window.requestAnimationFrame(this.update.bind(this));
     }
 }

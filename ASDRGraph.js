@@ -85,17 +85,28 @@ class DraggableSidewaysButton{
 
         context.strokeStyle = "darkblue";
         let barHeight = 0.025;
-        let labelOffset = 0.05;
+        let labelOffset = 0; //0.05;
+
+        let lineY = 0; //this.y
 
         context.lineWidth = 3;
         context.beginPath();
-        this.parent.moveTo(this.leftLimit, this.y + labelOffset + barHeight/2);
-        this.parent.lineTo(this.leftLimit, this.y + labelOffset - barHeight/2);
-        this.parent.moveTo(this.leftLimit, this.y + labelOffset);
-        this.parent.lineTo(this.x, this.y + labelOffset);
-        this.parent.moveTo(this.x, this.y + labelOffset + barHeight/2);
-        this.parent.lineTo(this.x, this.y + labelOffset - barHeight/2);
+        this.parent.moveTo(this.leftLimit, lineY + labelOffset + barHeight/2);
+        this.parent.lineTo(this.leftLimit, lineY + labelOffset - barHeight/2);
+        this.parent.moveTo(this.leftLimit, lineY + labelOffset);
+        this.parent.lineTo(this.x, lineY + labelOffset);
+        this.parent.moveTo(this.x, lineY + labelOffset + barHeight/2);
+        this.parent.lineTo(this.x, lineY + labelOffset - barHeight/2);
         context.stroke();
+
+        //dashed line up to the dot
+        context.strokeStyle = "hsla(240,50%,30%,0.7)";
+        for(var y=lineY + labelOffset + barHeight+ 0.02; y < this.y - 0.03 && y < 3; y += 0.02){
+            context.beginPath();
+            this.parent.moveTo(this.x, y);
+            this.parent.lineTo(this.x, y + 0.01);
+            context.stroke();
+        }
     }
 
 }
