@@ -350,6 +350,7 @@ class HoldToPlayDrawer{
 
             if(this.playState == "attack" && x > a + d + w){
                 x = a+d+ w;
+                this.lastAttackX = x;
             }
             if(this.playState == "release"){
                 x = this.parent.synth.currentTime()-this.noteReleaseTime + a+d + w;
@@ -372,14 +373,24 @@ class HoldToPlayDrawer{
             context.lineWidth = 3;
             context.beginPath();
             this.parent.moveTo(0, 0);
-            if(x > a)this.parent.lineTo(a, this.parent.envelopeVolumeAtTime(a));
-            if(x > a+d)this.parent.lineTo(a+d, this.parent.envelopeVolumeAtTime(a+d));
-            if(x > a+d+w)this.parent.lineTo(a+d+w, this.parent.envelopeVolumeAtTime(a+d+w));
-            // x capped to a+d+w+r above
-            this.parent.lineTo(x, this.parent.envelopeVolumeAtTime(x));
-            this.parent.lineTo(x, 0);
+            if(this.lastAttackX > a)this.parent.lineTo(a, this.parent.envelopeVolumeAtTime(a));
+            if(this.lastAttackX > a+d)this.parent.lineTo(a+d, this.parent.envelopeVolumeAtTime(a+d));
+            this.parent.lineTo(this.lastAttackX, this.parent.envelopeVolumeAtTime(this.lastAttackX));
+            this.parent.lineTo(this.lastAttackX, 0);
             context.closePath();
             context.fill();
+
+
+            if(this.playState == "release"){
+                context.beginPath();
+                this.parent.moveTo(a+d+w, 0);
+                if(x > a+d+w)this.parent.lineTo(a+d+w, this.parent.envelopeVolumeAtTime(a+d+w));
+                // x capped to a+d+w+r above
+                this.parent.lineTo(x, this.parent.envelopeVolumeAtTime(x));
+                this.parent.lineTo(x, 0);
+                context.closePath();
+                context.fill();
+            }
         }
 
     }
