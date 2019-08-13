@@ -15,9 +15,6 @@ class MainSimulation{
 
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
         this.synth = null;
-
-        this.playState = "none";
-        this.noteStartTime = 0;
     }
 
     start(){    
@@ -44,6 +41,7 @@ class MainSimulation{
         this.releaseBtn = new DraggableSidewaysButton(this, 'Release', (val) => {
             this.release = val - this.attack - this.decay - this.noteHoldAreaWidth;
         });
+        this.clickedSoundDrawer = new HoldToPlayDrawer(this);
 
         window.addEventListener("mousemove", this.onmousemove.bind(this));
         window.addEventListener("mousedown", this.onmousedown.bind(this));
@@ -54,7 +52,7 @@ class MainSimulation{
         window.addEventListener("touchend", this.onmouseup.bind(this),{'passive':false});
         window.addEventListener("touchcancel", this.onmouseup.bind(this),{'passive':false});
 
-        this.objects = [new ASDRGraphDrawer(this),  this.attackBtn, this.decaySustainBtn, this.releaseBtn];
+        this.objects = [new ASDRGraphDrawer(this),  this.clickedSoundDrawer, this.attackBtn, this.decaySustainBtn, this.releaseBtn];
 
         this.synth = new Synth(this.audioContext);
 
@@ -182,9 +180,6 @@ class MainSimulation{
         this.decaySustainBtn.x = this.attack + this.decay;
         this.decaySustainBtn.y = this.sustain;
 
-        //this.sustainBtn.x = this.decaySustainBtn.x;
-        //this.sustainBtn.y = this.sustain;
-
         this.releaseBtn.x = this.attack + this.decay + this.noteHoldAreaWidth + this.release;
         this.releaseBtn.y = 0;
 
@@ -193,22 +188,18 @@ class MainSimulation{
 
 
     defaultOnMouseDown(){
+        //only called if no other objects clicked
         this.synth.attack = this.attack;
         this.synth.sustain = this.sustain;
         this.synth.delay = this.decay;
         this.synth.release = this.release;
         this.synth.play(440);
+        this.clickedSoundDrawer.mousedown();
 
-        this.noteStartTime = this.synth.currentTime();
-        this.playState = "attack";
     }
 
     defaultOnMouseUp(){
         this.synth.stop();
-        if(this.playState == 'attack'){
-            this.noteStartTime = this.synth.currentTime();
-            this.playState = "release";
-        }
     }
 
     update(){
@@ -229,26 +220,6 @@ class MainSimulation{
         }
 
 
-        //if playing, draw the volume
-        if(this.playState != "none"){
-            
-            let x = this.synth.currentTime() - this.noteStartTime;
-            if(this.playState == "attack" && x > this.attack + this.decay + this.noteHoldAreaWidth){
-                x = this.attack + this.decay+ this.noteHoldAreaWidth;
-            }
-            if(this.playState == "release"){
-                x += this.attack + this.decay + this.noteHoldAreaWidth;
-                
-            }
-            //if(x > this.decay)this.playState = "none";
-            
-            context.strokeStyle = "red";
-            context.lineWidth = 3;
-            context.beginPath();
-            this.moveTo(x, 0);
-            this.lineTo(x, this.envelopeVolumeAtTime(x));
-            context.stroke();
-        }
 
         window.requestAnimationFrame(this.update.bind(this));
     }

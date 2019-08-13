@@ -303,3 +303,85 @@ class DraggableSidewaysAndVerticalButton extends DraggableSidewaysButton{
     }
 
 }
+
+class HoldToPlayDrawer{
+    constructor(parent){
+        this.parent = parent;
+        this.noteStartTime = 0;
+        this.noteReleaseTime = 0;
+        this.playState = "none"
+
+        this.lastAttackX = 0;
+        this.lastReleaseX = 0;
+    }
+
+    onmousedown(x,y){}
+    onmousemove(x,y){}
+    mousedown(){//called directly by parent if no other objects clicked
+        
+        this.noteStartTime = this.parent.synth.currentTime();
+        this.playState = "attack";
+        this.lastAttackX = 0;
+    }
+
+    onmouseup(x,y){
+        if(this.playState == 'attack'){
+            this.noteReleaseTime = this.parent.synth.currentTime();
+            this.playState = "release";
+            this.lastReleaseX = 0;
+        }
+    }
+
+    draw(context, t){
+        let a = this.parent.attack;
+        let d = this.parent.decay;
+        let s = this.parent.sustain;
+        let r = this.parent.release;
+
+        let w = this.parent.noteHoldAreaWidth; //the area representing holding down the note
+
+        //if playing, draw the volume
+        if(this.playState != "none"){
+            
+            let x = this.parent.synth.currentTime() - this.noteStartTime;
+            if(this.playState == "attack"){
+                 this.lastAttackX = x;
+            }
+
+            if(this.playState == "attack" && x > a + d + w){
+                x = a+d+ w;
+            }
+            if(this.playState == "release"){
+                x = this.parent.synth.currentTime()-this.noteReleaseTime + a+d + w;
+                
+            }
+
+            if(x > a+d+r+w){
+                this.playState = "none";
+            }
+
+            context.strokeStyle = "red";
+            context.lineWidth = 3;
+            context.beginPath();
+            this.parent.moveTo(x, 0);
+            this.parent.lineTo(x, this.parent.envelopeVolumeAtTime(x));
+            context.stroke();
+
+
+            context.fillStyle = "hsla(240,50%,70%,0.8)";
+            context.lineWidth = 3;
+            context.beginPath();
+            this.parent.moveTo(0, 0);
+            if(x > a)this.parent.lineTo(a, this.parent.envelopeVolumeAtTime(a));
+            if(x > a+d)this.parent.lineTo(a+d, this.parent.envelopeVolumeAtTime(a+d));
+            if(x > a+d+w)this.parent.lineTo(a+d+w, this.parent.envelopeVolumeAtTime(a+d+w));
+            // x capped to a+d+w+r above
+            this.parent.lineTo(x, this.parent.envelopeVolumeAtTime(x));
+            this.parent.lineTo(x, 0);
+            context.closePath();
+            context.fill();
+        }
+
+    }
+
+}
