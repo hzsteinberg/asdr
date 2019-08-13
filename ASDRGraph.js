@@ -361,6 +361,7 @@ class HoldToPlayDrawer{
                 this.playState = "none";
             }
 
+            //red line
             context.strokeStyle = "red";
             context.lineWidth = 3;
             context.beginPath();
@@ -368,19 +369,38 @@ class HoldToPlayDrawer{
             this.parent.lineTo(x, this.parent.envelopeVolumeAtTime(x));
             context.stroke();
 
-
+            //attack, decay, hold portion
             context.fillStyle = "hsla(240,50%,70%,0.8)";
             context.lineWidth = 3;
             context.beginPath();
             this.parent.moveTo(0, 0);
             if(this.lastAttackX > a)this.parent.lineTo(a, this.parent.envelopeVolumeAtTime(a));
-            if(this.lastAttackX > a+d)this.parent.lineTo(a+d, this.parent.envelopeVolumeAtTime(a+d));
-            this.parent.lineTo(this.lastAttackX, this.parent.envelopeVolumeAtTime(this.lastAttackX));
-            this.parent.lineTo(this.lastAttackX, 0);
+            if(this.lastAttackX > a+d){
+                this.parent.lineTo(a+d, this.parent.envelopeVolumeAtTime(a+d));
+                this.parent.lineTo(a+d, 0);
+            }else{
+                this.parent.lineTo(this.lastAttackX, this.parent.envelopeVolumeAtTime(this.lastAttackX));
+                this.parent.lineTo(this.lastAttackX, 0);
+            }
+            context.closePath();
+            context.fill();
+
+            
+            //hold portion
+            context.fillStyle = "hsla(300,50%,70%,0.8)";
+            context.lineWidth = 3;
+            context.beginPath();
+            this.parent.moveTo(a+d, 0);
+            if(this.lastAttackX > a+d){
+                this.parent.lineTo(a+d, this.parent.envelopeVolumeAtTime(a+d));
+                this.parent.lineTo(this.lastAttackX, this.parent.envelopeVolumeAtTime(this.lastAttackX));
+                this.parent.lineTo(this.lastAttackX, 0);
+            }
             context.closePath();
             context.fill();
 
 
+            context.fillStyle = "hsla(240,50%,70%,0.8)";
             if(this.playState == "release"){
                 context.beginPath();
                 this.parent.moveTo(a+d+w, 0);
