@@ -106,6 +106,8 @@ class MainSimulation{
         t -= this.decay
         if(t < this.noteHoldAreaWidth)return this.sustain;
         t -= this.noteHoldAreaWidth;
+
+        if(t > this.release)return 0; //note has ended
         
 
         return this.sustain*(1 - t/this.release);
@@ -150,8 +152,8 @@ class MainSimulation{
 
         let maxHeight = 1;
 
-        let xPadding = 100;
-        let yPadding = 100;
+        let xPadding = width/8;
+        let yPadding = height/6;
 
         return [x / this.maxWidth * (width-xPadding*2)+xPadding, (maxHeight-y) / maxHeight * (height-yPadding*2)+yPadding];
     }
@@ -161,8 +163,8 @@ class MainSimulation{
 
         let maxHeight = 1;
 
-        let xPadding = 100;
-        let yPadding = 100;
+        let xPadding = width/8;
+        let yPadding = height/6;
 
         return [(canvasX -xPadding) /(width-xPadding*2) * this.maxWidth, maxHeight-((canvasY -yPadding) /(height-yPadding*2) * maxHeight)];
     }
@@ -203,8 +205,10 @@ class MainSimulation{
 
     defaultOnMouseUp(){
         this.synth.stop();
-        this.noteStartTime = this.synth.currentTime();
-        this.playState = "release";
+        if(this.playState == 'attack'){
+            this.noteStartTime = this.synth.currentTime();
+            this.playState = "release";
+        }
     }
 
     update(){
@@ -242,7 +246,7 @@ class MainSimulation{
             context.lineWidth = 3;
             context.beginPath();
             this.moveTo(x, 0);
-            this.lineTo(x, 1);
+            this.lineTo(x, this.envelopeVolumeAtTime(x));
             context.stroke();
         }
 

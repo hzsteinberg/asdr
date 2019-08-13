@@ -48,6 +48,7 @@ class ASDRGraphDrawer{
         this.parent.lineTo(axisEnd, -axisMargin);
         this.parent.moveTo(axisEnd-0.013, -axisMargin-0.01);
         this.parent.lineTo(axisEnd, -axisMargin);
+
         this.parent.lineTo(axisEnd-0.013, -axisMargin+0.01);
         this.parent.lineTo(axisEnd, -axisMargin);
         context.stroke();
