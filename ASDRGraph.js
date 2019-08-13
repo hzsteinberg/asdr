@@ -17,7 +17,7 @@ class ASDRGraphDrawer{
 
         //render graph
         context.fillStyle = "lightblue";
-        context.strokeStyle = "lightblue";
+        context.strokeStyle = "gray";
         
 
         let a = this.parent.attack;
@@ -35,6 +35,29 @@ class ASDRGraphDrawer{
         this.parent.lineTo(a+d+noteHoldAreaWidth+r, 0);
         context.closePath();
         context.fill();
+
+        //time axis
+        context.lineWidth = 3
+        let axisMargin = 0.1;
+        context.beginPath();
+        this.parent.moveTo(0, -axisMargin - 0.01);
+        this.parent.lineTo(0, -axisMargin + 0.01);
+        this.parent.lineTo(0,-axisMargin);
+
+        let axisEnd = a+d+noteHoldAreaWidth+r + 0.3;
+        this.parent.lineTo(axisEnd, -axisMargin);
+        this.parent.moveTo(axisEnd-0.013, -axisMargin-0.01);
+        this.parent.lineTo(axisEnd, -axisMargin);
+        this.parent.lineTo(axisEnd-0.013, -axisMargin+0.01);
+        this.parent.lineTo(axisEnd, -axisMargin);
+        context.stroke();
+
+        context.fillStyle = "gray";
+        context.font = "16" + "pt bold calibri";
+
+        let pos = this.parent.toCanvasCoords(0, -axisMargin)
+
+        drawCenteredText(context, "Time", ...vecAdd(pos, [-16*3, 2]));
     }
 }
 

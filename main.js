@@ -139,7 +139,7 @@ class MainSimulation{
 
     //working with the internal coordinate system
     moveTo(x,y){
-        this.context.lineTo(...this.toCanvasCoords(x,y));
+        this.context.moveTo(...this.toCanvasCoords(x,y));
     }
     lineTo(x,y){
         this.context.lineTo(...this.toCanvasCoords(x,y));
