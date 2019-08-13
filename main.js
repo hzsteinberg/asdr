@@ -31,7 +31,7 @@ class MainSimulation{
         this.centerPos = [this.width/2, this.height/2];
 
 
-        this.attackBtn = new DraggableSidewaysButton(this, 'Attack', (val) => {
+        this.attackBtn = new DraggableAtkBtn(this, 'Attack', (val) => {
             this.attack = val;
 
         });

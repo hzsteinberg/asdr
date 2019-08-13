@@ -45,6 +45,8 @@ class DraggableSidewaysButton{
 
         this.leftLimit = 0;
         this.rightLimit = 5;
+
+        this.textOffset = -0.05;
     }
 
     onmousedown(){}
@@ -74,6 +76,9 @@ class DraggableSidewaysButton{
         if(this.beingDragged)this.endDrag();
         this.beingDragged = false;
     }
+    calcHorizLinePlacement(){
+        return 0 //this.y - 0.1;
+    }
     draw(context){
         this.pos = this.parent.toCanvasCoords(this.x, this.y);
 
@@ -87,7 +92,7 @@ class DraggableSidewaysButton{
         context.strokeStyle = "darkblue";
         let barHeight = 0.025;
 
-        let lineY = 0; //this.y
+        let lineY = this.calcHorizLinePlacement();
 
         context.lineWidth = 3;
         context.beginPath();
@@ -104,18 +109,34 @@ class DraggableSidewaysButton{
         context.fillStyle = "darkblue";
         context.font = "20" + "pt bold calibri";
         let midpointX = (this.leftLimit + this.x)/2;
-        drawCenteredText(context, this.title, ...this.parent.toCanvasCoords(midpointX, lineY - barHeight*2));
+        drawCenteredText(context, this.title, ...this.parent.toCanvasCoords(midpointX, lineY +this.textOffset));
 
         //dashed line up to the dot
-        context.strokeStyle = "hsla(240,50%,30%,0.7)";
-        for(var y=lineY + barHeight+ 0.02; y < this.y - 0.03 && y < 3; y += 0.02){
+        context.strokeStyle = "hsla(240,50%,30%,0.3)";
+        for(var y=lineY + barHeight+ 0.01; y < this.y - 0.03 && y < 3; y += 0.02){
             context.beginPath();
             this.parent.moveTo(this.x, y);
             this.parent.lineTo(this.x, y + 0.01);
             context.stroke();
         }
+        //dashed line down to start
+        for(var y=0; y < lineY - 0.03 && y < 3; y += 0.02){
+            context.beginPath();
+            this.parent.moveTo(this.leftLimit, y);
+            this.parent.lineTo(this.leftLimit, y + 0.01);
+            context.stroke();
+        }
     }
 
+}
+class DraggableAtkBtn extends DraggableSidewaysButton{
+    constructor(parent, title, ondragCallback){
+        super(parent, title, ondragCallback);
+        this.textOffset = 0.05;
+    }
+    calcHorizLinePlacement(){
+        return this.y + 0.075;
+    }
 }
 
 
@@ -171,6 +192,9 @@ class DraggableSidewaysAndVerticalButton{
         if(this.beingDragged)this.endDrag();
         this.beingDragged = false;
     }
+    calcHorizLinePlacement(){
+        return 0 //this.y - 0.1;
+    }
     draw(context){
         this.pos = this.parent.toCanvasCoords(this.x, this.y);
 
@@ -184,7 +208,7 @@ class DraggableSidewaysAndVerticalButton{
         let barHeight = 0.025;
         let dotMargin = 0.04;
 
-        let horizlineY = 0; //this.y
+        let horizlineY = this.calcHorizLinePlacement();
 
         context.lineWidth = 3;
         context.beginPath();
@@ -197,7 +221,7 @@ class DraggableSidewaysAndVerticalButton{
         context.stroke();
 
         //vertical line
-        let vertLineX = this.x + 0.2;
+        let vertLineX = this.x + 0.15;
         context.beginPath();
         this.parent.moveTo(vertLineX + barHeight/2, this.bottomLimit);
         this.parent.lineTo(vertLineX - barHeight/2, this.bottomLimit);
@@ -230,25 +254,32 @@ class DraggableSidewaysAndVerticalButton{
         pos[0] += (10*this.yTitle.length);
         drawCenteredText(context, this.yTitle, ...pos);
 
-        //dashed line up to the dot
-        context.strokeStyle = "hsla(240,50%,30%,0.7)";
+        //dashed line down to the dot
+        context.strokeStyle = "hsla(240,50%,30%,0.3)";
         for(let y=horizlineY + barHeight+ 0.02; y < this.y - dotMargin && y < 3; y += 0.02){
             context.beginPath();
             this.parent.moveTo(this.x, y);
             this.parent.lineTo(this.x, y + 0.01);
             context.stroke();
         }
+        //dashed line down to start
+        for(let y=horizlineY + 0.03; y < 1 && y < 3; y += 0.02){
+            context.beginPath();
+            this.parent.moveTo(this.leftLimit, y);
+            this.parent.lineTo(this.leftLimit, y + 0.01);
+            context.stroke();
+        }
         //dashed line sideways to the dot
-        for(let x=vertLineX - barHeight/2 - dotMargin; x > this.x + dotMargin && x >0; x -= 0.02){
+        for(let x=vertLineX - barHeight*1.5; x > this.x + dotMargin && x >0; x -= 0.02){
             context.beginPath();
             this.parent.moveTo(x+0.01, this.y);
             this.parent.lineTo(x, this.y);
             context.stroke();
 
-            context.beginPath();
+            /*context.beginPath();
             this.parent.moveTo(x+0.01, this.bottomLimit);
             this.parent.lineTo(x, this.bottomLimit);
-            context.stroke();
+            context.stroke();*/
         }
     }
 
