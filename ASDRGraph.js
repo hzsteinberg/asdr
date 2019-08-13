@@ -1,3 +1,9 @@
+let buttonBeingDraggedColor = "hsl(180,50%, 50%)"//"darkblue"
+let buttonDefaultColor = "blue"
+let lineColor = "darkblue"
+let lineDraggedColor = "hsl(180,50%, 50%)"
+let dashedLineColor = "hsla(240,50%,30%,0.3)";
+
 class ASDRGraphDrawer{
     constructor(parent){
         this.parent = parent;
@@ -79,17 +85,22 @@ class DraggableSidewaysButton{
     calcHorizLinePlacement(){
         return 0 //this.y - 0.1;
     }
-    draw(context){
+    drawCircle(context, t){
+
+        this.parent.context.fillStyle = "hsl(240, 100%, "+(40+5*Math.sin(t*2))+"%)";
+        if(this.beingDragged)context.fillStyle = buttonBeingDraggedColor;
+
+        drawCircle(this.parent.context, this.pos[0],this.pos[1], 20 + 1.5*Math.sin(t*2));
+
+    }
+    draw(context, t){
         this.pos = this.parent.toCanvasCoords(this.x, this.y);
-
-        context.fillStyle = "blue";
-        if(this.beingDragged)context.fillStyle = "darkblue";
-
-        drawCircle(context, this.pos[0],this.pos[1], 20);
+        this.drawCircle(context, t);
 
         //lines
 
-        context.strokeStyle = "darkblue";
+        context.strokeStyle = lineColor;
+        if(this.beingDragged)context.strokeStyle = lineDraggedColor;
         let barHeight = 0.025;
 
         let lineY = this.calcHorizLinePlacement();
@@ -106,19 +117,22 @@ class DraggableSidewaysButton{
 
         //label
         
-        context.fillStyle = "darkblue";
+        context.fillStyle = lineColor;
+        if(this.beingDragged)context.fillStyle = lineDraggedColor;
         context.font = "20" + "pt bold calibri";
         let midpointX = (this.leftLimit + this.x)/2;
         drawCenteredText(context, this.title, ...this.parent.toCanvasCoords(midpointX, lineY +this.textOffset));
 
         //dashed line up to the dot
-        context.strokeStyle = "hsla(240,50%,30%,0.3)";
-        for(var y=lineY + barHeight+ 0.01; y < this.y - 0.03 && y < 3; y += 0.02){
+        context.strokeStyle = dashedLineColor
+        /*
+        for(var y=0; y < lineY - barHeight/2 && y < 3; y += 0.02){
             context.beginPath();
             this.parent.moveTo(this.x, y);
             this.parent.lineTo(this.x, y + 0.01);
             context.stroke();
-        }
+        }*/
+
         //dashed line down to start
         for(var y=0; y < lineY - 0.03 && y < 3; y += 0.02){
             context.beginPath();
@@ -135,35 +149,22 @@ class DraggableAtkBtn extends DraggableSidewaysButton{
         this.textOffset = 0.05;
     }
     calcHorizLinePlacement(){
-        return this.y + 0.075;
+        return this.y + 0.065;
     }
 }
 
 
 
-class DraggableSidewaysAndVerticalButton{
+class DraggableSidewaysAndVerticalButton extends DraggableSidewaysButton{
     constructor(parent, xTitle, yTitle, ondragCallback){
-        this.parent = parent;
+        super(parent, '', ondragCallback);
         this.xTitle = xTitle;
         this.yTitle = yTitle;
-        this.ondragCallback = ondragCallback;
-
-        this.x = 1;
-        this.y = 1;
-
-        this.pos = [0,0];
-
-        this.leftLimit = 0;
-        this.rightLimit = 5;
 
         this.bottomLimit = 0;
         this.topLimit = 1;
     }
 
-    onmousedown(){}
-    onclick(){
-        this.beingDragged = true;
-    }
     endDrag(){
         this.ondragCallback(this.x,this.y);
     }
@@ -188,23 +189,16 @@ class DraggableSidewaysAndVerticalButton{
        }
 
     }
-    onmouseup(){
-        if(this.beingDragged)this.endDrag();
-        this.beingDragged = false;
-    }
     calcHorizLinePlacement(){
         return 0 //this.y - 0.1;
     }
-    draw(context){
+    draw(context,t){
         this.pos = this.parent.toCanvasCoords(this.x, this.y);
-
-        context.fillStyle = "blue";
-        if(this.beingDragged)context.fillStyle = "darkblue";
-
-        drawCircle(context, this.pos[0],this.pos[1], 20);
+        this.drawCircle(context, t);
 
         //horizontal line
-        context.strokeStyle = "darkblue";
+        context.strokeStyle = lineColor;
+        if(this.beingDragged)context.strokeStyle = lineDraggedColor;
         let barHeight = 0.025;
         let dotMargin = 0.04;
 
@@ -233,7 +227,8 @@ class DraggableSidewaysAndVerticalButton{
 
         //horizontal label
         
-        context.fillStyle = "darkblue";
+        context.fillStyle = lineColor;
+        if(this.beingDragged)context.fillStyle = lineDraggedColor;
         context.font = "20" + "pt bold calibri";
         let midpointX = (this.leftLimit + this.x)/2;
         drawCenteredText(context, this.xTitle, ...this.parent.toCanvasCoords(midpointX, horizlineY - barHeight*2));
@@ -255,7 +250,7 @@ class DraggableSidewaysAndVerticalButton{
         drawCenteredText(context, this.yTitle, ...pos);
 
         //dashed line down to the dot
-        context.strokeStyle = "hsla(240,50%,30%,0.3)";
+        context.strokeStyle = dashedLineColor;
         for(let y=horizlineY + barHeight+ 0.02; y < this.y - dotMargin && y < 3; y += 0.02){
             context.beginPath();
             this.parent.moveTo(this.x, y);
@@ -263,7 +258,7 @@ class DraggableSidewaysAndVerticalButton{
             context.stroke();
         }
         //dashed line down to start
-        for(let y=horizlineY + 0.03; y < 1 && y < 3; y += 0.02){
+        for(let y=horizlineY + 0.02; y < 1 - dotMargin && y < 3; y += 0.02){
             context.beginPath();
             this.parent.moveTo(this.leftLimit, y);
             this.parent.lineTo(this.leftLimit, y + 0.01);

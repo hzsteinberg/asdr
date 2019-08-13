@@ -5,7 +5,7 @@ class MainSimulation{
         this.attack = 0.05;
         this.decay = 0.2;
         this.sustain = 0.2;
-        this.release = 1.2;
+        this.release = 0.5;
 
 
         this.noteHoldAreaWidth = 0.5;
@@ -97,6 +97,18 @@ class MainSimulation{
             let touch = event.touches[i];
             this.onmousedown({x: touch.clientX - rect.left, y: touch.clientY- rect.top});
         }
+    }
+
+    envelopeVolumeAtTime(t){
+        if(t < this.attack)return t / this.attack;
+        t -= this.attack;
+        if(t < this.decay)return (1 - t/this.decay) + this.sustain * (t/this.decay);
+        t -= this.decay
+        if(t < this.noteHoldAreaWidth)return this.sustain;
+        t -= this.noteHoldAreaWidth;
+        
+
+        return this.sustain*(1 - t/this.release);
     }
 
     onmousedown(event){
@@ -209,7 +221,7 @@ class MainSimulation{
        // context.fillRect(0,0,this.width,this.height);
 
         for(var i=0;i<this.objects.length;i++){
-            this.objects[i].draw(context);
+            this.objects[i].draw(context, t);
         }
 
 
